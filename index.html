@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Canteen — Order Board</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#F6F2E4;
+    --surface:#FFFFFF;
+    --surface-2:#FCFAF1;
+    --ink:#26301F;
+    --ink-soft:#666F57;
+    --line:#E2DBC2;
+    --primary:#2F5233;
+    --primary-dark:#1F3A22;
+    --accent:#D98E04;
+    --accent-soft:#F6E4B3;
+    --danger:#B23A48;
+    --danger-soft:#F3DADD;
+    --veg:#2F8F3C;
+    --gold:#B8860B;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    margin:0;
+  }
+  button{font-family:inherit;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:var(--primary);
+    color:#FBF8EE;
+    padding:36px 20px 34px;
+    border-bottom:6px solid var(--accent);
+  }
+  .hero-inner{
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .hero-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,42px);
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  .history-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:rgba(251,248,238,0.12);
+    border:1.5px solid rgba(251,248,238,0.4);
+    color:#FBF8EE;
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .history-btn:hover{background:rgba(251,248,238,0.2);}
+  .tagline{
+    margin:8px 0 22px;
+    color:#D9E3D2;
+    font-size:15px;
+    max-width:44ch;
+  }
+  .search-wrap{
+    position:relative;
+    max-width:480px;
+  }
+  .search-wrap svg{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    opacity:0.55;
+  }
+  #search{
+    width:100%;
+    padding:13px 16px 13px 42px;
+    border-radius:10px;
+    border:none;
+    font-family:'Work Sans', sans-serif;
+    font-size:15px;
+    background:#FBF8EE;
+    color:var(--ink);
+    outline:none;
+    box-shadow:0 2px 0 rgba(0,0,0,0.12) inset;
+  }
+  #search::placeholder{color:#8B8B78;}
+  #search:focus{box-shadow:0 0 0 3px var(--accent-soft);}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    max-width:1100px;
+    margin:22px auto 0;
+    padding:0 20px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .tab{
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:9px 18px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:var(--surface);
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .tab:hover{border-color:var(--primary);}
+  .tab.active{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#FBF8EE;
+  }
+  .veg-toggle{
+    margin-left:auto;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+  }
+  .veg-toggle input{
+    appearance:none;
+    -webkit-appearance:none;
+    width:36px;height:20px;
+    border-radius:999px;
+    background:var(--line);
+    position:relative;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .veg-toggle input::after{
+    content:"";
+    position:absolute;
+    top:2px;left:2px;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:#FFF;
+    transition:left 0.15s;
+  }
+  .veg-toggle input:checked{background:var(--veg);}
+  .veg-toggle input:checked::after{left:18px;}
+
+  .tab:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    max-width:1100px;
+    margin:0 auto;
+    padding:22px 20px 100px;
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:26px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .menu{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
+    gap:14px;
+  }
+
+  .item-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    transition:border-color 0.15s, transform 0.1s;
+  }
+  .item-card.has-qty{
+    border-color:var(--primary);
+    background:var(--surface-2);
+  }
+  .item-media{
+    position:relative;
+    width:100%;
+    height:92px;
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--surface-2);
+  }
+  .item-media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .item-emoji-fallback{
+    width:100%;
+    height:100%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+    background:var(--surface-2);
+  }
+  .dot{
+    width:11px;height:11px;
+    border:1.5px solid var(--veg);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:2px;
+    position:absolute;
+    top:7px;left:7px;
+    background:#FFFFFF;
+    padding:3px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.25);
+  }
+  .dot::after{
+    content:"";
+    width:5px;height:5px;
+    background:var(--veg);
+    border-radius:50%;
+  }
+  .dot.nonveg{border-color:var(--danger);}
+  .dot.nonveg::after{background:var(--danger); border-radius:0;}
+  .item-card h3{
+    font-size:16px;
+    font-weight:600;
+    line-height:1.25;
+  }
+  .item-price{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14px;
+    font-weight:500;
+  }
+  .qty-stepper{
+    margin-top:auto;
+    padding-top:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .qty-btn{
+    width:30px;height:30px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--surface);
+    color:var(--primary-dark);
+    font-size:17px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .qty-btn:hover{border-color:var(--primary);}
+  .qty-input{
+    width:38px;
+    text-align:center;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:6px 2px;
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    -moz-appearance:textfield;
+  }
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .no-results{
+    grid-column:1/-1;
+    color:var(--ink-soft);
+    font-size:14px;
+    padding:30px 0;
+    text-align:center;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    position:sticky;
+    top:20px;
+  }
+
+  /* ---------- Rewards ---------- */
+  .rewards-card{
+    background:var(--primary-dark);
+    color:#FBF8EE;
+    border-radius:16px;
+    padding:18px 20px;
+  }
+  .rewards-top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .rewards-tier-icon{
+    font-size:28px;
+    background:rgba(251,248,238,0.12);
+    width:46px;height:46px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .rewards-top h3{font-size:16px; font-weight:600;}
+  .rewards-sub{
+    margin:2px 0 0;
+    font-size:12.5px;
+    color:#C9D4C2;
+  }
+  .rewards-bar{
+    margin-top:14px;
+    height:7px;
+    border-radius:999px;
+    background:rgba(251,248,238,0.15);
+    overflow:hidden;
+  }
+  .rewards-bar-fill{
+    height:100%;
+    background:var(--accent);
+    border-radius:999px;
+    transition:width 0.2s;
+  }
+  .rewards-hint{
+    margin:10px 0 0;
+    font-size:12.5px;
+    color:#D9E3D2;
+  }
+
+  /* ---------- Bill ---------- */
+  .bill{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+  }
+  .bill-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .bill h2{
+    font-size:19px;
+    font-weight:600;
+  }
+  .clear-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px 2px;
+  }
+  .clear-btn:hover{text-decoration:underline;}
+  .bill-empty{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    padding:10px 0 4px;
+  }
+  .bill-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .bill-list li{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:7px 10px;
+    font-size:13.5px;
+    border-bottom:1px dashed var(--line);
+    padding-bottom:10px;
+  }
+  .bill-list .b-name{font-weight:600;}
+  .bill-list .b-line{font-weight:600; text-align:right;}
+  .bill-list .b-controls{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .b-btn{
+    width:25px;height:25px;
+    border-radius:7px;
+    border:1.5px solid var(--line);
+    background:var(--surface);
+    color:var(--primary-dark);
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .b-btn:hover{border-color:var(--primary);}
+  .b-btn.remove{
+    margin-left:auto;
+    color:var(--danger);
+    border-color:var(--danger-soft);
+  }
+  .b-btn.remove:hover{border-color:var(--danger);}
+  .b-qty-num{min-width:16px; text-align:center; font-weight:600;}
+  .bill-list .b-unit{
+    grid-column:1/-1;
+    color:var(--ink-soft);
+    font-size:12px;
+  }
+  .bill-totals{
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1.5px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .bill-totals .row{
+    display:flex;
+    justify-content:space-between;
+    font-size:14px;
+  }
+  .discount-row{color:var(--danger);}
+  .total-row{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    font-weight:600;
+    padding-top:6px;
+    border-top:1px solid var(--line);
+  }
+  .discount-hint{
+    font-size:12.5px;
+    color:var(--accent);
+    background:var(--accent-soft);
+    padding:8px 10px;
+    border-radius:8px;
+    margin:12px 0 0;
+    display:none;
+  }
+  .discount-hint.show{display:block;}
+
+  /* ---------- Payment methods ---------- */
+  .payment-methods{margin-top:16px;}
+  .pm-label{
+    margin:0 0 8px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    text-transform:none;
+  }
+  .pm-options{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .pm-btn{
+    padding:10px 6px;
+    border-radius:9px;
+    border:1.5px solid var(--line);
+    background:var(--surface);
+    color:var(--ink-soft);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+  }
+  .pm-btn span.pm-icon{font-size:17px;}
+  .pm-btn:hover{border-color:var(--primary);}
+  .pm-btn.active{
+    border-color:var(--primary);
+    background:var(--surface-2);
+    color:var(--primary-dark);
+  }
+
+  .place-btn{
+    margin-top:16px;
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:10px;
+    background:var(--primary);
+    color:#FBF8EE;
+    font-family:'Work Sans', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .place-btn:disabled{
+    background:#C9C4AD;
+    cursor:not-allowed;
+  }
+  .place-btn:not(:disabled):hover{background:var(--primary-dark);}
+
+  /* ---------- Mobile bar ---------- */
+  .mobile-bar{
+    display:none;
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:var(--primary-dark);
+    color:#FBF8EE;
+    padding:13px 18px;
+    align-items:center;
+    justify-content:space-between;
+    font-size:14px;
+    font-weight:600;
+    z-index:20;
+  }
+  .mobile-bar button{
+    background:var(--accent);
+    color:#2A1B00;
+    border:none;
+    border-radius:8px;
+    padding:9px 16px;
+    font-weight:600;
+    font-family:'Work Sans', sans-serif;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  @media (max-width:860px){
+    .mobile-bar.active{display:flex;}
+    .layout{padding-bottom:90px;}
+  }
+
+
+  /* ---------- Dish description + details ---------- */
+  .item-media{cursor:zoom-in;}
+  .item-media img{opacity:0; transition:opacity 0.25s ease;}
+  .item-media img.loaded{opacity:1;}
+  .item-desc{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    line-height:1.45;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .item-details-btn{
+    align-self:flex-start;
+    background:none;
+    border:none;
+    padding:0;
+    margin:0;
+    color:var(--primary);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    border-bottom:1.5px solid var(--accent-soft);
+  }
+  .item-details-btn:hover{border-bottom-color:var(--accent);}
+
+  .dish-sheet{
+    background:#FFFDF6;
+    border-radius:14px;
+    max-width:440px;
+    width:100%;
+    max-height:88vh;
+    overflow-y:auto;
+  }
+  .dish-photo{
+    position:relative;
+    width:100%;
+    height:200px;
+    background:var(--surface-2);
+    border-radius:14px 14px 0 0;
+    overflow:hidden;
+  }
+  .dish-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .dish-photo .emoji-big{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:64px;
+  }
+  .dish-photo .close-x{
+    position:absolute;
+    top:10px; right:10px;
+    background:rgba(255,253,246,0.92);
+    border-radius:50%;
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dish-body{padding:18px 22px 24px;}
+  .dish-body h2{font-size:22px; font-weight:600; line-height:1.2;}
+  .dish-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:7px 0 12px;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .dish-meta strong{color:var(--ink); font-weight:600;}
+  .dish-tag{
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    background:#E8F2E4;
+    color:var(--veg);
+  }
+  .dish-tag.nonveg{background:var(--danger-soft); color:var(--danger);}
+  .dish-body p.dish-desc{
+    margin:0 0 18px;
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--ink);
+  }
+  .dish-body h3{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:9px;
+  }
+  .ing-list{
+    list-style:none;
+    margin:0 0 20px;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+  }
+  .ing-list li{
+    font-size:12.5px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:5px 11px;
+    border-radius:999px;
+  }
+  .dish-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+  }
+  .dish-add{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .dish-add button{
+    flex:1;
+    background:var(--primary);
+    color:#FBF8EE;
+    border:none;
+    border-radius:10px;
+    padding:12px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .dish-add button:hover{background:var(--primary-dark);}
+  .photo-credit{
+    font-size:11px;
+    color:var(--ink-soft);
+    padding:0 22px 16px;
+    margin:0;
+  }
+  .photo-credit a{color:var(--primary);}
+
+  /* ---------- Overlay / receipt / history ---------- */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(31,26,15,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:30;
+  }
+  .receipt{
+    background:#FFFDF6;
+    border-radius:14px;
+    max-width:400px;
+    width:100%;
+    padding:26px 24px;
+    max-height:85vh;
+    overflow-y:auto;
+  }
+  .receipt-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .close-x{
+    background:none;
+    border:none;
+    font-size:22px;
+    line-height:1;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .close-x:hover{color:var(--ink);}
+  .receipt h2{font-size:21px; font-weight:600;}
+  .token{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin:6px 0 6px;
+  }
+  .token span{
+    color:var(--primary);
+    font-weight:700;
+    font-family:'Fraunces', serif;
+  }
+  .pay-tag{
+    display:inline-block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--primary-dark);
+    background:var(--accent-soft);
+    padding:4px 10px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .receipt ul{
+    list-style:none;
+    margin:0 0 14px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .receipt ul li{
+    display:flex;
+    justify-content:space-between;
+    font-size:13.5px;
+    border-bottom:1px dashed var(--line);
+    padding-bottom:6px;
+  }
+  .receipt .total-row{border-top:1.5px solid var(--line); padding-top:10px;}
+  .reward-msg{
+    margin-top:14px;
+    font-size:13px;
+    background:var(--accent-soft);
+    color:var(--primary-dark);
+    padding:9px 12px;
+    border-radius:9px;
+  }
+  #newOrder{
+    margin-top:18px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:var(--primary);
+    color:#FBF8EE;
+    font-weight:600;
+    font-size:14.5px;
+    cursor:pointer;
+  }
+
+  .history-list{
+    list-style:none;
+    margin:14px 0 0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .history-item{
+    border:1px solid var(--line);
+    border-radius:11px;
+    padding:12px 13px;
+  }
+  .history-item .h-top{
+    display:flex;
+    justify-content:space-between;
+    font-size:13.5px;
+    font-weight:600;
+  }
+  .history-item .h-meta{
+    margin:4px 0 0;
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+  }
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <h1>Campus Canteen</h1>
+      <button class="history-btn" id="historyBtn">🕘 Order history</button>
+    </div>
+    <p class="tagline">Order without the queue — pick your plate, we'll have it ready by the time you get there.</p>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#26301F" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search for samosa, chai, biryani…" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-cat="all">All items</button>
+  <button class="tab" data-cat="snacks">Snacks</button>
+  <button class="tab" data-cat="beverages">Beverages</button>
+  <button class="tab" data-cat="main">Main course</button>
+  <label class="veg-toggle">
+    <input type="checkbox" id="vegOnly">
+    🌱 Veg only
+  </label>
+</nav>
+
+<main class="layout">
+  <section class="menu" id="menu" aria-label="Menu items"></section>
+
+  <aside class="sidebar">
+    <div class="rewards-card" id="rewardsCard">
+      <div class="rewards-top">
+        <span class="rewards-tier-icon" id="tierIcon">🌱</span>
+        <div>
+          <h3 id="tierName">Newcomer</h3>
+          <p class="rewards-sub" id="tierSub">0 orders placed</p>
+        </div>
+      </div>
+      <div class="rewards-bar"><div class="rewards-bar-fill" id="rewardsBarFill" style="width:0%"></div></div>
+      <p class="rewards-hint" id="rewardsHint"></p>
+    </div>
+
+    <div class="bill" id="bill">
+      <div class="bill-head">
+        <h2>Your order</h2>
+        <button class="clear-btn" id="clearCart" hidden>Clear all</button>
+      </div>
+      <p class="bill-empty" id="billEmpty">No items yet — tap “+” on anything tasty to add it here.</p>
+      <ul class="bill-list" id="billList"></ul>
+      <div class="bill-totals" id="billTotals" hidden>
+        <div class="row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+        <div class="row discount-row" id="bulkDiscountRow" hidden><span id="bulkDiscountLabel">Bulk discount</span><span id="bulkDiscountAmt">−₹0</span></div>
+        <div class="row discount-row" id="loyaltyDiscountRow" hidden><span id="loyaltyDiscountLabel">Loyalty discount</span><span id="loyaltyDiscountAmt">−₹0</span></div>
+        <div class="row total-row"><span>Total</span><span id="total">₹0</span></div>
+      </div>
+      <p class="discount-hint" id="discountHint"></p>
+
+      <div class="payment-methods" id="paymentMethodsWrap" hidden>
+        <p class="pm-label">Payment method</p>
+        <div class="pm-options" id="paymentMethods">
+          <button class="pm-btn active" data-method="cash"><span class="pm-icon">💵</span>Cash</button>
+          <button class="pm-btn" data-method="online"><span class="pm-icon">📱</span>UPI</button>
+          <button class="pm-btn" data-method="card"><span class="pm-icon">💳</span>Card</button>
+        </div>
+      </div>
+
+      <button class="place-btn" id="placeOrder" disabled>Place order</button>
+    </div>
+  </aside>
+</main>
+
+<div class="mobile-bar" id="mobileBar">
+  <span id="mobileBarText">0 items · ₹0</span>
+  <button id="mobileBarBtn">View bill</button>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="receipt">
+    <div class="receipt-head">
+      <h2>Order confirmed</h2>
+      <button class="close-x" id="closeReceipt" aria-label="Close">×</button>
+    </div>
+    <p class="token">Token <span id="tokenNum"></span> — show this at the counter</p>
+    <span class="pay-tag" id="payTag"></span>
+    <ul id="receiptList"></ul>
+    <div class="row total-row"><span>Total paid</span><span id="receiptTotal"></span></div>
+    <p class="reward-msg" id="rewardMsg" hidden></p>
+    <button id="newOrder">Start new order</button>
+  </div>
+</div>
+
+<div class="overlay" id="dishOverlay" hidden>
+  <div class="dish-sheet">
+    <div class="dish-photo">
+      <img id="dishImg" alt="" hidden>
+      <div class="emoji-big" id="dishEmoji"></div>
+      <button class="close-x" id="closeDish" aria-label="Close">×</button>
+    </div>
+    <div class="dish-body">
+      <h2 id="dishName"></h2>
+      <div class="dish-meta">
+        <strong id="dishPrice"></strong>
+        <span class="dish-tag" id="dishTag"></span>
+      </div>
+      <p class="dish-desc" id="dishDesc"></p>
+      <h3>What goes in it</h3>
+      <ul class="ing-list" id="dishIng"></ul>
+      <p class="dish-note" id="dishNote"></p>
+      <div class="dish-add">
+        <button id="dishAdd">Add to bill</button>
+      </div>
+    </div>
+    <p class="photo-credit">Photo from <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a></p>
+  </div>
+</div>
+
+<div class="overlay" id="historyOverlay" hidden>
+  <div class="receipt">
+    <div class="receipt-head">
+      <h2>Order history</h2>
+      <button class="close-x" id="closeHistory" aria-label="Close">×</button>
+    </div>
+    <p class="bill-empty" id="historyEmpty">No past orders yet — place your first order to see it here.</p>
+    <ul class="history-list" id="historyList"></ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Real photos are pulled from Wikipedia/Wikimedia Commons at load time using the
+  // article titles in `wiki` (first title that has a lead image wins), then cached
+  // in localStorage. If the network is unavailable the emoji fallback is shown.
+  const ITEMS = [
+    {id:'samosa', name:'Samosa', cat:'snacks', price:15, emoji:'🥟', veg:true,
+     wiki:['Samosa'],
+     desc:'Crisp fried pastry cone stuffed with spiced potato and peas. Served hot with mint chutney.',
+     ing:['Refined flour (maida)','Potatoes','Green peas','Cumin and coriander seeds','Garam masala','Green chilli, ginger','Oil for frying']},
+
+    {id:'vegpuff', name:'Veg Puff', cat:'snacks', price:20, emoji:'🥐', veg:true,
+     wiki:['Curry puff','Puff pastry'],
+     desc:'Flaky layered pastry with a mildly spiced mixed vegetable filling. The classic bakery-counter snack.',
+     ing:['Puff pastry (flour, butter/margarine)','Potatoes','Carrot, beans, peas','Onion','Turmeric and chilli powder','Salt']},
+
+    {id:'alootikki', name:'Aloo Tikki', cat:'snacks', price:25, emoji:'🥔', veg:true,
+     wiki:['Aloo tikki','Chaat'],
+     desc:'Shallow-fried potato patties, crunchy outside and soft inside. Topped with chutney and onion.',
+     ing:['Boiled potatoes','Cornflour or bread crumbs','Green chilli, ginger','Coriander leaves','Chaat masala','Oil']},
+
+    {id:'breadpakora', name:'Bread Pakora', cat:'snacks', price:20, emoji:'🍞', veg:true,
+     wiki:['Bread pakora','Pakora'],
+     desc:'Bread slices dipped in spiced gram-flour batter and deep fried until golden. Often stuffed with potato.',
+     ing:['Bread slices','Gram flour (besan)','Potato stuffing','Carom seeds (ajwain)','Red chilli powder','Oil for frying']},
+
+    {id:'fries', name:'French Fries', cat:'snacks', price:40, emoji:'🍟', veg:true,
+     wiki:['French fries'],
+     desc:'Thick-cut potato batons fried crisp and tossed with salt. Served with ketchup or peri-peri sprinkle.',
+     ing:['Potatoes','Refined oil','Salt','Peri-peri or chaat seasoning (optional)']},
+
+    {id:'sandwich', name:'Veg Sandwich', cat:'snacks', price:35, emoji:'🥪', veg:true,
+     wiki:['Bombay sandwich','Sandwich'],
+     desc:'Grilled bread layered with fresh vegetables, green chutney and cheese. Cut into triangles.',
+     ing:['Bread slices','Cucumber, tomato, onion','Boiled potato','Green coriander-mint chutney','Butter','Cheese slice']},
+
+    {id:'maggi', name:'Maggi', cat:'snacks', price:30, emoji:'🍜', veg:true,
+     wiki:['Maggi','Instant noodles'],
+     desc:'Instant noodles simmered in masala broth with onion and capsicum. The hostel-night staple.',
+     ing:['Instant noodle cake','Maggi masala (tastemaker)','Onion, capsicum','Tomato','Butter','Water']},
+
+    {id:'springroll', name:'Spring Roll', cat:'snacks', price:35, emoji:'🌯', veg:true,
+     wiki:['Spring roll'],
+     desc:'Thin wrappers rolled around shredded stir-fried vegetables and deep fried. Served with chilli sauce.',
+     ing:['Spring roll sheets','Cabbage, carrot, capsicum','Spring onion','Soy sauce and vinegar','Black pepper','Oil for frying']},
+
+    {id:'pizza', name:'Pizza Slice', cat:'snacks', price:50, emoji:'🍕', veg:true,
+     wiki:['Pizza'],
+     desc:'Oven-baked slice with tomato sauce, melted mozzarella and vegetable toppings on a soft base.',
+     ing:['Pizza base (wheat flour, yeast)','Tomato pizza sauce','Mozzarella cheese','Capsicum, onion, sweet corn','Oregano and chilli flakes']},
+
+    {id:'burger', name:'Veg Burger', cat:'snacks', price:45, emoji:'🍔', veg:true,
+     wiki:['Veggie burger'],
+     desc:'Crumb-fried vegetable patty in a soft bun with lettuce, onion and mayo-ketchup sauce.',
+     ing:['Burger bun','Potato-vegetable patty','Bread crumbs','Lettuce, onion, tomato','Mayonnaise and ketchup','Cheese slice (optional)']},
+
+    {id:'pasta', name:'Pasta', cat:'snacks', price:55, emoji:'🍝', veg:true,
+     wiki:['Pasta'],
+     desc:'Penne tossed in a creamy tomato sauce with herbs and sautéed vegetables. Finished with cheese.',
+     ing:['Penne pasta','Tomato puree','Fresh cream or milk','Garlic, onion','Capsicum, sweet corn','Oregano, chilli flakes','Cheese']},
+
+    {id:'chowmein', name:'Chowmein', cat:'snacks', price:40, emoji:'🍜', veg:true,
+     wiki:['Chow mein'],
+     desc:'Stir-fried noodles with julienned vegetables in soy and vinegar. Indo-Chinese street style.',
+     ing:['Hakka noodles','Cabbage, carrot, capsicum','Spring onion','Soy sauce, vinegar','Green chilli sauce','Black pepper','Oil']},
+
+    {id:'breadroll', name:'Bread Roll', cat:'snacks', price:25, emoji:'🥖', veg:true,
+     wiki:['Bread roll','Bread'],
+     desc:'Bread flattened around a spiced potato filling, rolled and deep fried to a crisp shell.',
+     ing:['Bread slices','Boiled potatoes','Onion, green chilli','Coriander leaves','Cumin, garam masala','Oil for frying']},
+
+    {id:'eggroll', name:'Egg Roll', cat:'snacks', price:40, emoji:'🥚', veg:false,
+     wiki:['Kati roll','Egg roll'],
+     desc:'Paratha coated with a fried egg, filled with onion, chilli and sauce, then rolled up.',
+     ing:['Maida paratha','Eggs','Onion and green chilli','Lemon juice','Chaat masala','Tomato and chilli sauce']},
+
+    {id:'chickenroll', name:'Chicken Roll', cat:'snacks', price:55, emoji:'🌯', veg:false,
+     wiki:['Kati roll'],
+     desc:'Flaky paratha wrapped around spiced grilled chicken with onion rings and tangy sauce.',
+     ing:['Maida paratha','Boneless chicken','Yoghurt marinade','Ginger-garlic paste','Onion, green chilli','Chaat masala','Lemon juice']},
+
+    {id:'chickenburger', name:'Chicken Burger', cat:'snacks', price:60, emoji:'🍔', veg:false,
+     wiki:['Chicken sandwich','Hamburger'],
+     desc:'Crispy crumb-fried chicken patty in a toasted bun with lettuce and creamy mayo.',
+     ing:['Burger bun','Chicken patty (minced chicken)','Bread crumbs','Lettuce, onion','Mayonnaise','Pepper and salt']},
+
+    {id:'chai', name:'Masala Chai', cat:'beverages', price:12, emoji:'☕', veg:true,
+     wiki:['Masala chai','Chai','Tea'],
+     desc:'Black tea boiled with milk, sugar and whole spices. Strong, sweet and poured piping hot.',
+     ing:['Tea leaves','Milk','Sugar','Ginger','Cardamom','Cloves and black pepper','Water']},
+
+    {id:'filtercoffee', name:'Filter Coffee', cat:'beverages', price:15, emoji:'☕', veg:true,
+     wiki:['Indian filter coffee','Coffee'],
+     desc:'South Indian decoction coffee brewed slowly in a metal filter, frothed with hot milk.',
+     ing:['Coffee powder with chicory','Hot water','Milk','Sugar']},
+
+    {id:'coldcoffee', name:'Cold Coffee', cat:'beverages', price:40, emoji:'🥤', veg:true,
+     wiki:['Iced coffee'],
+     desc:'Chilled milk blended with coffee, sugar and ice to a thick froth. Served with a straw.',
+     ing:['Instant coffee','Chilled milk','Sugar','Ice cubes','Vanilla ice cream (optional)','Chocolate syrup']},
+
+    {id:'lassi', name:'Lassi', cat:'beverages', price:35, emoji:'🥛', veg:true,
+     wiki:['Lassi','Yogurt'],
+     desc:'Whipped yoghurt drink, sweet and cooling. Topped with a pinch of cardamom.',
+     ing:['Fresh curd (yoghurt)','Sugar','Chilled water or milk','Cardamom powder','Ice']},
+
+    {id:'limesoda', name:'Fresh Lime Soda', cat:'beverages', price:25, emoji:'🍋', veg:true,
+     wiki:['Nimbu pani','Lemon-lime drink'],
+     desc:'Fresh lime juice over soda, sweet or salted. A fizzy reset for a hot afternoon.',
+     ing:['Fresh lime juice','Soda water','Sugar syrup','Black salt','Roasted cumin powder','Ice','Mint leaves']},
+
+    {id:'mangoshake', name:'Mango Shake', cat:'beverages', price:45, emoji:'🥭', veg:true,
+     wiki:['Mango shake','Milkshake'],
+     desc:'Ripe mango pulp blended thick with chilled milk and sugar. Seasonal favourite.',
+     ing:['Ripe mango pulp','Chilled milk','Sugar','Ice cubes','Cardamom powder (optional)']},
+
+    {id:'water', name:'Bottled Water', cat:'beverages', price:15, emoji:'💧', veg:true,
+     wiki:['Bottled water','Water bottle'],
+     desc:'Sealed one-litre bottle of packaged drinking water, chilled.',
+     ing:['Packaged drinking water (treated and mineral balanced)']},
+
+    {id:'cola', name:'Cola', cat:'beverages', price:25, emoji:'🥤', veg:true,
+     wiki:['Cola','Soft drink'],
+     desc:'Chilled carbonated cola served in a glass with ice and a wedge of lime.',
+     ing:['Carbonated water','Sugar','Caramel colour','Phosphoric acid','Caffeine','Natural flavouring']},
+
+    {id:'thali', name:'Veg Thali', cat:'main', price:70, emoji:'🍛', veg:true,
+     wiki:['Thali','Indian cuisine'],
+     desc:'Full plate meal: dal, a seasonal vegetable, rice, four rotis, salad and pickle.',
+     ing:['Rice','Wheat rotis','Dal (lentils)','Seasonal vegetable curry','Curd','Salad and pickle','Ghee']},
+
+    {id:'cholebhature', name:'Chole Bhature', cat:'main', price:60, emoji:'🫓', veg:true,
+     wiki:['Chole bhature','Chana masala'],
+     desc:'Spiced chickpea curry with two puffed fried breads, onion rings and green chilli.',
+     ing:['Chickpeas (chana)','Refined flour dough (bhatura)','Onion, tomato','Ginger-garlic paste','Chole masala','Tea bag or amla for colour','Oil']},
+
+    {id:'biryani', name:'Veg Biryani', cat:'main', price:65, emoji:'🍚', veg:true,
+     wiki:['Biryani'],
+     desc:'Basmati rice layered with spiced vegetables and saffron, dum cooked. Served with raita.',
+     ing:['Basmati rice','Mixed vegetables and paneer','Yoghurt','Fried onion (birista)','Biryani masala, saffron','Mint and coriander','Ghee']},
+
+    {id:'paneerroll', name:'Paneer Roll', cat:'main', price:55, emoji:'🌮', veg:true,
+     wiki:['Paneer tikka','Kati roll'],
+     desc:'Grilled paneer tikka rolled in a paratha with onion, mint chutney and lemon.',
+     ing:['Paneer (cottage cheese)','Maida paratha','Yoghurt marinade','Capsicum, onion','Tandoori masala','Mint chutney','Lemon juice']},
+
+    {id:'rajmachawal', name:'Rajma Chawal', cat:'main', price:60, emoji:'🍲', veg:true,
+     wiki:['Rajma','Rajma chawal','Kidney bean'],
+     desc:'Kidney beans slow cooked in an onion-tomato gravy, served over steamed rice.',
+     ing:['Kidney beans (rajma)','Steamed rice','Onion, tomato','Ginger-garlic paste','Cumin, coriander powder','Garam masala','Ghee or oil']},
+
+    {id:'dalrice', name:'Dal Makhani + Rice', cat:'main', price:65, emoji:'🍛', veg:true,
+     wiki:['Dal makhani','Dal'],
+     desc:'Black lentils simmered overnight with butter and cream, paired with steamed rice.',
+     ing:['Whole black lentils (urad)','Kidney beans','Butter and cream','Tomato puree','Ginger-garlic paste','Garam masala','Steamed rice']},
+
+    {id:'dosa', name:'Masala Dosa', cat:'main', price:55, emoji:'🥞', veg:true,
+     wiki:['Masala dosa','Dosa'],
+     desc:'Crisp fermented rice crepe folded over spiced potato, with sambar and coconut chutney.',
+     ing:['Rice and urad dal batter','Potato masala filling','Mustard seeds, curry leaves','Turmeric','Sambar','Coconut chutney','Ghee or oil']},
+
+    {id:'pavbhaji', name:'Pav Bhaji', cat:'main', price:50, emoji:'🍅', veg:true,
+     wiki:['Pav bhaji','Pav (bread)'],
+     desc:'Mashed vegetable curry cooked on a griddle with butter, served with toasted pav.',
+     ing:['Pav (soft bread rolls)','Potato, cauliflower, peas','Tomato, onion, capsicum','Pav bhaji masala','Butter','Lemon and chopped onion']},
+
+    {id:'idli', name:'Idli Sambar', cat:'main', price:40, emoji:'🍥', veg:true,
+     wiki:['Idli','Sambar (dish)'],
+     desc:'Steamed rice-and-lentil cakes, light and fluffy, served with hot sambar and chutney.',
+     ing:['Rice and urad dal batter','Toor dal','Drumstick, carrot, pumpkin','Tamarind','Sambar powder','Curry leaves','Coconut chutney']},
+
+    {id:'noodlesbowl', name:'Veg Noodles Bowl', cat:'main', price:60, emoji:'🥡', veg:true,
+     wiki:['Hakka noodles','Chow mein','Noodle'],
+     desc:'A full bowl of wok-tossed noodles with vegetables, garlic and a glossy sauce.',
+     ing:['Hakka noodles','Cabbage, carrot, capsicum, beans','Garlic and spring onion','Soy sauce, vinegar','Schezwan or chilli sauce','Pepper','Oil']},
+
+    {id:'chickenbiryani', name:'Chicken Biryani', cat:'main', price:90, emoji:'🍗', veg:false,
+     wiki:['Chicken biryani','Hyderabadi biryani','Biryani'],
+     desc:'Marinated chicken and basmati rice layered and dum cooked. Comes with raita and salan.',
+     ing:['Basmati rice','Chicken (bone-in)','Yoghurt marinade','Fried onion (birista)','Biryani masala, saffron','Mint and coriander','Ghee']},
+
+    {id:'eggcurry', name:'Egg Curry + Rice', cat:'main', price:70, emoji:'🍛', veg:false,
+     wiki:['Egg curry','Curry'],
+     desc:'Boiled eggs simmered in a spiced onion-tomato gravy, served with steamed rice.',
+     ing:['Eggs','Onion, tomato','Ginger-garlic paste','Turmeric, red chilli, coriander powder','Garam masala','Coriander leaves','Steamed rice']},
+
+    {id:'butterchicken', name:'Butter Chicken + Rice', cat:'main', price:100, emoji:'🍗', veg:false,
+     wiki:['Butter chicken','Chicken tikka masala'],
+     desc:'Tandoori chicken in a mildly sweet tomato-butter gravy, finished with cream. With rice.',
+     ing:['Boneless chicken','Tomato puree','Butter and fresh cream','Cashew paste','Ginger-garlic paste','Kasuri methi, garam masala','Steamed rice']},
+  ];
+
+  const PAYMENT_LABEL = {cash:'💵 Cash', online:'📱 UPI / Online', card:'💳 Card'};
+
+  const TIERS = [
+    {name:'Newcomer', icon:'🌱', min:0, bonus:0},
+    {name:'Regular', icon:'🥈', min:3, bonus:0.03},
+    {name:'Star Regular', icon:'🥇', min:7, bonus:0.07},
+  ];
+
+  // ---------- storage helpers (fail silently if unavailable) ----------
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ /* ignore */ }
+  }
+
+  // ---------- state ----------
+  const cart = new Map(loadJSON('canteen_cart', []));
+  let activeCat = 'all';
+  let searchTerm = '';
+  let vegOnly = false;
+  let selectedPayment = 'cash';
+  let history = loadJSON('canteen_history', []);
+  let loyalty = loadJSON('canteen_loyalty', {orderCount:0, totalSpend:0});
+
+  const $ = (sel) => document.querySelector(sel);
+  const menuEl = $('#menu');
+  const tabsEl = $('#tabs');
+  const searchEl = $('#search');
+  const vegOnlyEl = $('#vegOnly');
+  const billListEl = $('#billList');
+  const billEmptyEl = $('#billEmpty');
+  const clearCartBtn = $('#clearCart');
+  const billTotalsEl = $('#billTotals');
+  const subtotalEl = $('#subtotal');
+  const bulkRowEl = $('#bulkDiscountRow');
+  const bulkLabelEl = $('#bulkDiscountLabel');
+  const bulkAmtEl = $('#bulkDiscountAmt');
+  const loyaltyRowEl = $('#loyaltyDiscountRow');
+  const loyaltyLabelEl = $('#loyaltyDiscountLabel');
+  const loyaltyAmtEl = $('#loyaltyDiscountAmt');
+  const totalEl = $('#total');
+  const discountHintEl = $('#discountHint');
+  const paymentWrapEl = $('#paymentMethodsWrap');
+  const paymentMethodsEl = $('#paymentMethods');
+  const placeOrderBtn = $('#placeOrder');
+  const mobileBar = $('#mobileBar');
+  const mobileBarText = $('#mobileBarText');
+  const overlay = $('#overlay');
+  const historyOverlay = $('#historyOverlay');
+  const historyListEl = $('#historyList');
+  const historyEmptyEl = $('#historyEmpty');
+
+  function money(n){ return '₹' + n.toFixed(0); }
+
+  function getTier(orderCount){
+    let tier = TIERS[0];
+    for (const t of TIERS){ if (orderCount >= t.min) tier = t; }
+    return tier;
+  }
+  function getNextTier(orderCount){
+    return TIERS.find(t => t.min > orderCount) || null;
+  }
+
+  function setCartQty(id, newQty){
+    newQty = Math.max(0, Math.min(20, Math.floor(newQty) || 0));
+    if (newQty === 0){ cart.delete(id); }
+    else { cart.set(id, newQty); }
+    saveJSON('canteen_cart', Array.from(cart.entries()));
+    renderMenu();
+    renderBill();
+  }
+
+  function computeBulkDiscount(totalQty){
+    if (totalQty >= 8) return {rate:0.15, label:'Bulk discount · 15% (8+ items)'};
+    if (totalQty >= 4) return {rate:0.10, label:'Bulk discount · 10% (4+ items)'};
+    return {rate:0, label:''};
+  }
+
+  function getFilteredItems(){
+    return ITEMS.filter(item => {
+      const matchesCat = activeCat === 'all' || item.cat === activeCat;
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesVeg = !vegOnly || item.veg;
+      return matchesCat && matchesSearch && matchesVeg;
+    });
+  }
+
+  /* ---------- Real food photos (Wikipedia / Wikimedia Commons) ---------- */
+  const PHOTOS = loadJSON('canteen_photos_v1', {}) || {};
+  const PHOTO_TARGETS = [];   // [{img, fallback, id}] waiting for a URL
+
+  function applyPhoto(item, img, fallback){
+    const url = PHOTOS[item.id];
+    if (url){
+      img.src = url;
+      img.hidden = false;
+      img.addEventListener('load', () => img.classList.add('loaded'));
+      img.addEventListener('error', () => { img.hidden = true; fallback.style.display = 'flex'; });
+      fallback.style.display = 'none';
+    } else {
+      PHOTO_TARGETS.push({id:item.id, img, fallback});
+    }
+  }
+
+  function fillPendingPhotos(){
+    for (let i = PHOTO_TARGETS.length - 1; i >= 0; i--){
+      const t = PHOTO_TARGETS[i];
+      const url = PHOTOS[t.id];
+      if (!url || !t.img.isConnected) { PHOTO_TARGETS.splice(i,1); continue; }
+      t.img.src = url;
+      t.img.hidden = false;
+      t.img.addEventListener('load', () => t.img.classList.add('loaded'));
+      t.img.addEventListener('error', () => { t.img.hidden = true; t.fallback.style.display = 'flex'; });
+      t.fallback.style.display = 'none';
+      PHOTO_TARGETS.splice(i,1);
+    }
+  }
+
+  async function fetchPhotos(){
+    const missing = ITEMS.filter(it => !PHOTOS[it.id]);
+    if (missing.length === 0) return;
+
+    const titles = [];
+    missing.forEach(it => it.wiki.forEach(t => { if (!titles.includes(t)) titles.push(t); }));
+
+    const found = {};       // resolved article title -> image url
+    const alias = {};       // requested title -> resolved title
+
+    for (let i = 0; i < titles.length; i += 20){
+      const chunk = titles.slice(i, i + 20);
+      const url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*'
+                + '&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1'
+                + '&titles=' + encodeURIComponent(chunk.join('|'));
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const q = data.query || {};
+        (q.normalized || []).forEach(n => { alias[n.from] = n.to; });
+        (q.redirects || []).forEach(r => { alias[r.from] = r.to; });
+        Object.values(q.pages || {}).forEach(p => {
+          if (p.thumbnail && p.thumbnail.source) found[p.title] = p.thumbnail.source;
+        });
+      } catch (err){
+        /* offline or blocked — emoji fallback stays in place */
+        return;
+      }
+    }
+
+    const resolve = (t) => {
+      let cur = t, hops = 0;
+      while (alias[cur] && hops++ < 5) cur = alias[cur];
+      return cur;
+    };
+
+    let gotAny = false;
+    missing.forEach(it => {
+      for (const t of it.wiki){
+        const url = found[resolve(t)];
+        if (url){ PHOTOS[it.id] = url; gotAny = true; break; }
+      }
+    });
+
+    if (gotAny){
+      saveJSON('canteen_photos_v1', PHOTOS);
+      fillPendingPhotos();
+      const openId = dishOverlay.dataset.itemId;
+      if (openId && !dishOverlay.hidden){
+        const it = ITEMS.find(x => x.id === openId);
+        if (it) openDish(it);
+      }
+    }
+  }
+
+  /* ---------- Dish details ---------- */
+  const dishOverlay = $('#dishOverlay');
+
+  function openDish(item){
+    dishOverlay.dataset.itemId = item.id;
+    const img = $('#dishImg');
+    const emoji = $('#dishEmoji');
+    const url = PHOTOS[item.id];
+    if (url){
+      img.src = url;
+      img.alt = item.name;
+      img.hidden = false;
+      emoji.style.display = 'none';
+      img.onerror = () => { img.hidden = true; emoji.style.display = 'flex'; };
+    } else {
+      img.hidden = true;
+      emoji.style.display = 'flex';
+    }
+    emoji.textContent = item.emoji;
+    $('#dishName').textContent = item.name;
+    $('#dishPrice').textContent = money(item.price);
+    const tag = $('#dishTag');
+    tag.textContent = item.veg ? 'Vegetarian' : 'Non-vegetarian';
+    tag.className = 'dish-tag' + (item.veg ? '' : ' nonveg');
+    $('#dishDesc').textContent = item.desc;
+    $('#dishIng').innerHTML = item.ing.map(i => `<li>${i}</li>`).join('');
+    $('#dishNote').textContent = 'Ingredients are indicative. Tell the counter about any allergy before ordering.';
+    const qty = cart.get(item.id) || 0;
+    $('#dishAdd').textContent = qty > 0 ? `In your bill (${qty}) — add one more` : 'Add to bill';
+    $('#dishAdd').onclick = () => {
+      const next = Math.min(20, (cart.get(item.id) || 0) + 1);
+      cart.set(item.id, next);
+      saveJSON('canteen_cart', Array.from(cart.entries()));
+      renderMenu();
+      renderBill();
+      $('#dishAdd').textContent = `In your bill (${next}) — add one more`;
+    };
+    dishOverlay.hidden = false;
+  }
+
+  $('#closeDish').addEventListener('click', () => { dishOverlay.hidden = true; });
+  dishOverlay.addEventListener('click', (e) => {
+    if (e.target === dishOverlay) dishOverlay.hidden = true;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !dishOverlay.hidden) dishOverlay.hidden = true;
+  });
+
+  function renderMenu(){
+    const items = getFilteredItems();
+    PHOTO_TARGETS.length = 0;
+    menuEl.innerHTML = '';
+    if (items.length === 0){
+      menuEl.innerHTML = '<p class="no-results">No items match your search. Try a different name or filter.</p>';
+      return;
+    }
+    items.forEach(item => {
+      const qty = cart.get(item.id) || 0;
+      const card = document.createElement('article');
+      card.className = 'item-card' + (qty > 0 ? ' has-qty' : '');
+      card.innerHTML = `
+        <div class="item-media" data-open="${item.id}" role="button" tabindex="0" aria-label="See details for ${item.name}">
+          <img alt="${item.name}" loading="lazy" hidden>
+          <div class="item-emoji-fallback" style="display:flex">${item.emoji}</div>
+          <span class="dot${item.veg ? '' : ' nonveg'}" title="${item.veg ? 'Vegetarian' : 'Non-vegetarian'}"></span>
+        </div>
+        <h3>${item.name}</h3>
+        <p class="item-price">${money(item.price)}</p>
+        <p class="item-desc">${item.desc}</p>
+        <button class="item-details-btn" data-open="${item.id}">Ingredients &amp; details</button>
+        <div class="qty-stepper">
+          <button class="qty-btn minus" aria-label="Decrease ${item.name} quantity">−</button>
+          <input class="qty-input" type="number" min="0" max="20" value="${qty}" aria-label="${item.name} quantity">
+          <button class="qty-btn plus" aria-label="Increase ${item.name} quantity">+</button>
+        </div>
+      `;
+      const media = card.querySelector('.item-media');
+      const img = card.querySelector('img');
+      const fallback = card.querySelector('.item-emoji-fallback');
+      applyPhoto(item, img, fallback);
+
+      card.querySelectorAll('[data-open]').forEach(el => {
+        el.addEventListener('click', () => openDish(item));
+      });
+      media.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDish(item); }
+      });
+
+      const input = card.querySelector('.qty-input');
+      const minus = card.querySelector('.minus');
+      const plus = card.querySelector('.plus');
+
+      function setQty(newQty){
+        newQty = Math.max(0, Math.min(20, Math.floor(newQty) || 0));
+        if (newQty === 0){ cart.delete(item.id); }
+        else { cart.set(item.id, newQty); }
+        input.value = newQty;
+        card.classList.toggle('has-qty', newQty > 0);
+        saveJSON('canteen_cart', Array.from(cart.entries()));
+        renderBill();
+      }
+
+      minus.addEventListener('click', () => setQty((cart.get(item.id) || 0) - 1));
+      plus.addEventListener('click', () => setQty((cart.get(item.id) || 0) + 1));
+      input.addEventListener('input', () => setQty(parseInt(input.value, 10)));
+      input.addEventListener('blur', () => setQty(parseInt(input.value, 10) || 0));
+
+      menuEl.appendChild(card);
+    });
+  }
+
+  function renderRewards(){
+    const tier = getTier(loyalty.orderCount);
+    const next = getNextTier(loyalty.orderCount);
+    $('#tierIcon').textContent = tier.icon;
+    $('#tierName').textContent = tier.name;
+    $('#tierSub').textContent = `${loyalty.orderCount} order${loyalty.orderCount === 1 ? '' : 's'} placed · ${Math.round(tier.bonus*100)}% loyalty discount`;
+
+    if (next){
+      const prevMin = tier.min;
+      const span = next.min - prevMin;
+      const progressed = loyalty.orderCount - prevMin;
+      const pct = Math.min(100, Math.round((progressed / span) * 100));
+      $('#rewardsBarFill').style.width = pct + '%';
+      $('#rewardsHint').textContent = `${next.min - loyalty.orderCount} more order${(next.min - loyalty.orderCount) === 1 ? '' : 's'} to reach ${next.name} (${Math.round(next.bonus*100)}% off)`;
+    } else {
+      $('#rewardsBarFill').style.width = '100%';
+      $('#rewardsHint').textContent = `You're at our top tier — thanks for being a regular!`;
+    }
+  }
+
+  function renderBill(){
+    const entries = Array.from(cart.entries()).map(([id, qty]) => {
+      const item = ITEMS.find(i => i.id === id);
+      return {item, qty, lineTotal: item.price * qty};
+    }).filter(e => e.item);
+
+    const totalQty = entries.reduce((sum, e) => sum + e.qty, 0);
+    const subtotal = entries.reduce((sum, e) => sum + e.lineTotal, 0);
+
+    if (entries.length === 0){
+      billEmptyEl.hidden = false;
+      billListEl.innerHTML = '';
+      billTotalsEl.hidden = true;
+      paymentWrapEl.hidden = true;
+      clearCartBtn.hidden = true;
+      discountHintEl.classList.remove('show');
+      placeOrderBtn.disabled = true;
+      mobileBar.classList.remove('active');
+      mobileBarText.textContent = '0 items · ₹0';
+      renderBill.lastOrder = null;
+      return;
+    }
+
+    billEmptyEl.hidden = true;
+    billTotalsEl.hidden = false;
+    paymentWrapEl.hidden = false;
+    clearCartBtn.hidden = false;
+    placeOrderBtn.disabled = false;
+
+    billListEl.innerHTML = entries.map(e => `
+      <li data-id="${e.item.id}">
+        <span class="b-name">${e.item.name}</span>
+        <span class="b-line">${money(e.lineTotal)}</span>
+        <div class="b-controls">
+          <button class="b-btn minus" aria-label="Decrease ${e.item.name} quantity">−</button>
+          <span class="b-qty-num">${e.qty}</span>
+          <button class="b-btn plus" aria-label="Increase ${e.item.name} quantity">+</button>
+          <button class="b-btn remove" aria-label="Remove ${e.item.name}">🗑</button>
+        </div>
+        <span class="b-unit">${money(e.item.price)} each</span>
+      </li>
+    `).join('');
+
+    const tier = getTier(loyalty.orderCount);
+    const bulk = computeBulkDiscount(totalQty);
+    const combinedRate = Math.min(0.25, bulk.rate + tier.bonus);
+    const bulkShare = combinedRate === (bulk.rate + tier.bonus) ? bulk.rate : combinedRate * (bulk.rate / (bulk.rate + tier.bonus || 1));
+    const loyaltyShare = combinedRate - bulkShare;
+    const bulkAmt = Math.round(subtotal * bulkShare);
+    const loyaltyAmt = Math.round(subtotal * loyaltyShare);
+    const total = subtotal - bulkAmt - loyaltyAmt;
+
+    subtotalEl.textContent = money(subtotal);
+
+    if (bulk.rate > 0){
+      bulkRowEl.hidden = false;
+      bulkLabelEl.textContent = bulk.label;
+      bulkAmtEl.textContent = '−' + money(bulkAmt);
+    } else {
+      bulkRowEl.hidden = true;
+    }
+
+    if (tier.bonus > 0){
+      loyaltyRowEl.hidden = false;
+      loyaltyLabelEl.textContent = `Loyalty discount · ${tier.name}`;
+      loyaltyAmtEl.textContent = '−' + money(loyaltyAmt);
+    } else {
+      loyaltyRowEl.hidden = true;
+    }
+
+    totalEl.textContent = money(total);
+
+    if (totalQty < 4){
+      const remaining = 4 - totalQty;
+      discountHintEl.textContent = `Add ${remaining} more item${remaining > 1 ? 's' : ''} to unlock 10% bulk discount.`;
+      discountHintEl.classList.add('show');
+    } else if (totalQty < 8){
+      const remaining = 8 - totalQty;
+      discountHintEl.textContent = `Add ${remaining} more item${remaining > 1 ? 's' : ''} to unlock 15% bulk discount.`;
+      discountHintEl.classList.add('show');
+    } else {
+      discountHintEl.classList.remove('show');
+    }
+
+    mobileBar.classList.add('active');
+    mobileBarText.textContent = `${totalQty} item${totalQty > 1 ? 's' : ''} · ${money(total)}`;
+
+    saveJSON('canteen_cart', Array.from(cart.entries()));
+
+    renderBill.lastOrder = {entries, totalQty, subtotal, bulk, bulkAmt, tier, loyaltyAmt, total};
+  }
+
+  function renderHistory(){
+    if (history.length === 0){
+      historyEmptyEl.hidden = false;
+      historyListEl.innerHTML = '';
+      return;
+    }
+    historyEmptyEl.hidden = true;
+    historyListEl.innerHTML = history.slice(0, 10).map(o => `
+      <li class="history-item">
+        <div class="h-top"><span>Token ${o.token}</span><span>${money(o.total)}</span></div>
+        <div class="h-meta">
+          <span>${o.itemCount} item${o.itemCount > 1 ? 's' : ''} · ${PAYMENT_LABEL[o.payment] || o.payment}</span>
+          <span>${o.date}</span>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  tabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    tabsEl.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderMenu();
+  });
+
+  vegOnlyEl.addEventListener('change', () => {
+    vegOnly = vegOnlyEl.checked;
+    renderMenu();
+  });
+
+  searchEl.addEventListener('input', () => {
+    searchTerm = searchEl.value.trim();
+    renderMenu();
+  });
+
+  billListEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.b-btn');
+    if (!btn) return;
+    const id = btn.closest('li').dataset.id;
+    const current = cart.get(id) || 0;
+    if (btn.classList.contains('minus')) setCartQty(id, current - 1);
+    else if (btn.classList.contains('plus')) setCartQty(id, current + 1);
+    else if (btn.classList.contains('remove')) setCartQty(id, 0);
+  });
+
+  clearCartBtn.addEventListener('click', () => {
+    cart.clear();
+    saveJSON('canteen_cart', []);
+    renderMenu();
+    renderBill();
+  });
+
+  paymentMethodsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pm-btn');
+    if (!btn) return;
+    paymentMethodsEl.querySelectorAll('.pm-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedPayment = btn.dataset.method;
+  });
+
+  $('#mobileBarBtn').addEventListener('click', () => {
+    document.getElementById('bill').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  placeOrderBtn.addEventListener('click', () => {
+    const order = renderBill.lastOrder;
+    if (!order || order.entries.length === 0) return;
+
+    const token = 'C' + Math.floor(100 + Math.random() * 900);
+    const now = new Date();
+    const dateLabel = now.toLocaleDateString(undefined, {day:'2-digit', month:'short'}) + ', ' +
+      now.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+
+    const prevTier = order.tier;
+    loyalty.orderCount += 1;
+    loyalty.totalSpend += order.total;
+    saveJSON('canteen_loyalty', loyalty);
+    const newTier = getTier(loyalty.orderCount);
+
+    history.unshift({
+      token,
+      date: dateLabel,
+      itemCount: order.totalQty,
+      total: order.total,
+      payment: selectedPayment,
+    });
+    history = history.slice(0, 20);
+    saveJSON('canteen_history', history);
+
+    $('#tokenNum').textContent = token;
+    $('#payTag').textContent = PAYMENT_LABEL[selectedPayment];
+    $('#receiptList').innerHTML = order.entries.map(e => `
+      <li><span>${e.item.name} ×${e.qty}</span><span>${money(e.lineTotal)}</span></li>
+    `).join('')
+      + (order.bulk.rate > 0 ? `<li><span>${order.bulk.label}</span><span>−${money(order.bulkAmt)}</span></li>` : '')
+      + (order.tier.bonus > 0 ? `<li><span>Loyalty discount · ${order.tier.name}</span><span>−${money(order.loyaltyAmt)}</span></li>` : '');
+    $('#receiptTotal').textContent = money(order.total);
+
+    const rewardMsgEl = $('#rewardMsg');
+    if (newTier.name !== prevTier.name){
+      rewardMsgEl.hidden = false;
+      rewardMsgEl.textContent = `🎉 You've unlocked ${newTier.name} status — ${Math.round(newTier.bonus*100)}% loyalty discount from your next order!`;
+    } else {
+      const next = getNextTier(loyalty.orderCount);
+      if (next){
+        rewardMsgEl.hidden = false;
+        rewardMsgEl.textContent = `${next.min - loyalty.orderCount} more order${(next.min - loyalty.orderCount) === 1 ? '' : 's'} to reach ${next.name} (${Math.round(next.bonus*100)}% off).`;
+      } else {
+        rewardMsgEl.hidden = true;
+      }
+    }
+
+    renderRewards();
+    renderHistory();
+    overlay.hidden = false;
+  });
+
+  $('#closeReceipt').addEventListener('click', () => { overlay.hidden = true; });
+
+  $('#newOrder').addEventListener('click', () => {
+    cart.clear();
+    saveJSON('canteen_cart', []);
+    overlay.hidden = true;
+    renderMenu();
+    renderBill();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  $('#historyBtn').addEventListener('click', () => {
+    renderHistory();
+    historyOverlay.hidden = false;
+  });
+  $('#closeHistory').addEventListener('click', () => { historyOverlay.hidden = true; });
+
+  renderMenu();
+  renderBill();
+  renderRewards();
+  renderHistory();
+  fetchPhotos();
+})();
+</script>
+</body>
+</html>
