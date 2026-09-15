@@ -1,9 +1,9 @@
 
- # 🍴 Campus Canteen — Smart Canteen Ordering System
+ # Campus Canteen — Smart Canteen Ordering System
 
 A web-based Smart Canteen Ordering System designed for a college campus.
 
-## 🌐 Live Demo
+##  Live Demo
 
 [View the Live Website] https://chandrimakumari32-hue.github.io/smart-canteen-ordering-system/
 
